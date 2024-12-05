@@ -1,0 +1,54 @@
+<odoo>
+
+    <record id="product_variant_easy_edit_view" model="ir.ui.view">
+        <field name="model">product.product</field>
+        <field name="inherit_id" ref="product.product_variant_easy_edit_view"/>
+        <field name="arch" type="xml">
+            <xpath expr='//group[@name="pricing"]' position="inside">
+                <label for="compare_list_price"/>
+                <div class="o_row">
+                    <field name="compare_list_price" class="oe_inline" widget="monetary"
+                           options="{'currency_field': 'cost_currency_id', 'field_digits': True}"/>
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="product_product_tree_view" model="ir.ui.view">
+        <field name="model">product.product</field>
+        <field name="inherit_id" ref="product.product_product_tree_view"/>
+        <field name="arch" type="xml">
+            <field name="standard_price" position="after">
+                <field name="compare_list_price" optional="hide"/>
+            </field>
+        </field>
+    </record>
+
+    <record id="product_normal_form_view" model="ir.ui.view">
+        <field name="model">product.product</field>
+        <field name="inherit_id" ref="product.product_normal_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr='//field[@name="default_code"]' position="before">
+                <field name="compare_list_price" class="oe_inline" widget="monetary"
+                       options="{'currency_field': 'cost_currency_id', 'field_digits': True}"/>
+            </xpath>
+        </field>
+    </record>
+
+    <template id="price_dynamic_filter_template_product_product"
+              inherit_id="website_sale.price_dynamic_filter_template_product_product">
+        <xpath expr="//del" position="replace">
+            <t t-if="record._name == 'product.template'">
+                <t t-set="product" t-value="record.sudo()"/>
+            </t>
+            <t t-else="">
+                <t t-set="product" t-value="record.product_tmpl_id"/>
+            </t>
+            <del t-if="product.compare_list_price and (product.compare_list_price &gt; data['price'])"
+                 class="text-danger ms-1 h6" style="white-space: nowrap;"
+                 t-esc="product.compare_list_price"
+                 t-options="{'widget': 'monetary', 'display_currency': website.currency_id}"/>
+        </xpath>
+    </template>
+
+</odoo>
