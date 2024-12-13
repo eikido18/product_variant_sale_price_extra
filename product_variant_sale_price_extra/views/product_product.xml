@@ -30,10 +30,11 @@
         <field name="arch" type="xml">
             <xpath expr='//field[@name="default_code"]' position="before">
                 <field name="compare_list_price" class="oe_inline" widget="monetary"
-                       options="{'currency_field': 'cost_currency_id', 'field_digits': True}"/>
+                           options="{'currency_field': 'cost_currency_id', 'field_digits': True}"/>
             </xpath>
         </field>
     </record>
+
 
     <template id="price_dynamic_filter_template_product_product"
               inherit_id="website_sale.price_dynamic_filter_template_product_product">
@@ -46,7 +47,13 @@
             </t>
             <del t-if="product.compare_list_price and (product.compare_list_price &gt; data['price'])"
                  class="text-danger ms-1 h6" style="white-space: nowrap;"
-                 t-esc="product.compare_list_price"
+                 t-esc="request.env.company.currency_id._convert(
+                        from_amount=product.compare_list_price,
+                        to_currency=request.website._get_current_pricelist().currency_id,
+                        company=request.env.company,
+                        date=datetime.date.today(),
+                        round=False,
+                    )"
                  t-options="{'widget': 'monetary', 'display_currency': website.currency_id}"/>
         </xpath>
     </template>
